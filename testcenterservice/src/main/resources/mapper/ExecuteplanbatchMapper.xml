@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zoctan.api.mapper.ExecuteplanbatchMapper">
+  <resultMap id="BaseResultMap" type="com.zoctan.api.entity.Executeplanbatch">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="executeplanid" jdbcType="BIGINT" property="executeplanid" />
+    <result column="executeplanname" jdbcType="VARCHAR" property="executeplanname" />
+    <result column="usetype" jdbcType="VARCHAR" property="usetype" />
+    <result column="batchname" jdbcType="VARCHAR" property="batchname" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="source" jdbcType="VARCHAR" property="source" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="lastmodify_time" jdbcType="TIMESTAMP" property="lastmodifyTime" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="projectid" jdbcType="BIGINT" property="projectid" />
+    <result column="exectype" jdbcType="VARCHAR" property="exectype" />
+    <result column="execdate" jdbcType="VARCHAR" property="execdate" />
+    <result column="sceneid" jdbcType="BIGINT" property="sceneid" />
+    <result column="scenename" jdbcType="VARCHAR" property="scenename" />
+    <result column="memo" jdbcType="VARCHAR" property="memo" />
+  </resultMap>
+
+  <select id="getbatchbyplan" resultMap="BaseResultMap">
+    SELECT distinct (batchname)
+    FROM executeplanbatch
+    where executeplanid=#{executeplanid}
+  </select>
+
+
+  <select id="getallexplanbatch" resultMap="BaseResultMap">
+    SELECT b.executeplanname,a.*
+    FROM executeplanbatch a inner JOIN executeplan b on a.executeplanid=b.id
+  </select>
+
+  <select id="getbatchidbyplanidandbatchname" resultMap="BaseResultMap">
+    SELECT a.*
+    FROM executeplanbatch a
+    where a.executeplanid=#{executeplanid} and batchname =#{batchname}
+  </select>
+
+  <select id="getbatchbyexectype" resultMap="BaseResultMap">
+    SELECT a.*
+    FROM executeplanbatch a
+    where a.exectype=#{exectype} and a.execdate between DATE_FORMAT(CURDATE(),'%Y-%m-%d %H:%i:%s')
+      and  DATE_FORMAT(date_sub(curdate(),interval -1 day),'%Y-%m-%d %H:%i:%s')
+  </select>
+
+
+  <select id="findexplanbatchWithName" resultMap="BaseResultMap">
+    SELECT b.executeplanname,b.usetype, a.*
+    FROM executeplanbatch a inner join executeplan b on a.executeplanid = b.id
+    <where>
+      <if test="batchname != null and batchname != ''">a.batchname = #{batchname} </if>
+      <if test="executeplanname != null and executeplanname != ''">and a.executeplanname like CONCAT('%',#{executeplanname},'%')</if>
+      <if test="projectid != null  and projectid != ''">and a.projectid =#{projectid}</if>
+    </where>
+    order by lastmodify_time  DESC
+  </select>
+
+  <select id="getstopplanbatchList" resultMap="BaseResultMap">
+    SELECT  distinct(batchname)
+    FROM executeplanbatch a where a.executeplanid =#{executeplanid} and status !='已完成'
+  </select>
+
+  <select id="getrecentbatchbyid" resultMap="BaseResultMap">
+    SELECT a.*
+    FROM executeplanbatch a
+    where a.executeplanid=#{executeplanid} order by a.create_time desc limit 2
+  </select>
+
+  <insert id="saveplanbatchscenen">
+    INSERT INTO executeplanbatch (sceneid,scenename,executeplanid,projectid,status,source,executeplanname,batchname,
+                                  creator,exectype,execdate,create_time,lastmodify_time)
+    VALUES
+    <foreach collection="casedataList" item="item" index="index" separator=",">
+      (#{item.sceneid},#{item.scenename},#{item.executeplanid}, #{item.projectid},#{item.status}, #{item.source},
+       #{item.executeplanname},#{item.batchname},#{item.creator},#{item.exectype},#{item.execdate},DATE_FORMAT(NOW(),'%Y-%m-%d %H:%i:%s'),
+      DATE_FORMAT(NOW(),'%Y-%m-%d %H:%i:%s'))
+    </foreach>
+  </insert>
+
+  <update id="updatebatchstatus">
+    update executeplanbatch set status = #{status}, lastmodify_time = DATE_FORMAT(NOW(),'%Y-%m-%d %H:%i:%s')
+    where
+          executeplanid = #{executeplanid} and batchname=#{batchname} and status!='已完成';
+  </update>
+
+</mapper>

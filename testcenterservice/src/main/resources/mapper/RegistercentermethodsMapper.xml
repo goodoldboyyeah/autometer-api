@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zoctan.api.mapper.RegistercentermethodsMapper">
+  <resultMap id="BaseResultMap" type="com.zoctan.api.entity.Registercentermethods">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="interfaceid" jdbcType="BIGINT" property="interfaceid" />
+    <result column="methodname" jdbcType="VARCHAR" property="methodname" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="lastmodify_time" jdbcType="TIMESTAMP" property="lastmodifyTime" />
+  </resultMap>
+
+  <select id="findDicWithName" resultMap="BaseResultMap">
+    SELECT a.*
+    FROM registercenterMethods a
+    <where>
+      <if test="interfaceid != null  and interfaceid != ''"> a.interfaceid =#{interfaceid}</if>
+    </where>
+    order by lastmodify_time  DESC
+  </select>
+
+  <update id="deletemethods" >
+    delete from registercenterMethods
+    where interfaceid = #{interfaceid}
+  </update>
+</mapper>

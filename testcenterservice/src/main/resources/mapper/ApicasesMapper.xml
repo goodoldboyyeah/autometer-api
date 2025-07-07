@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zoctan.api.mapper.ApicasesMapper">
+  <resultMap id="BaseResultMap" type="com.zoctan.api.entity.Apicases">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <id column="apiid" jdbcType="BIGINT" property="apiid" />
+    <id column="deployunitid" jdbcType="BIGINT" property="deployunitid" />
+    <result column="apiname" jdbcType="VARCHAR" property="apiname" />
+    <result column="deployunitname" jdbcType="VARCHAR" property="deployunitname" />
+    <result column="casename" jdbcType="VARCHAR" property="casename" />
+    <result column="servicetype" jdbcType="VARCHAR" property="servicetype" />
+    <result column="protocal" jdbcType="VARCHAR" property="protocal" />
+    <result column="casejmxname" jdbcType="VARCHAR" property="casejmxname" />
+    <result column="casecontent" jdbcType="VARCHAR" property="casecontent" />
+    <result column="casetype" jdbcType="VARCHAR" property="casetype" />
+    <result column="threadnum" jdbcType="BIGINT" property="threadnum" />
+    <result column="loops" jdbcType="BIGINT" property="loops" />
+    <result column="expect" jdbcType="VARCHAR" property="expect" />
+    <result column="middleparam" jdbcType="VARCHAR" property="middleparam" />
+    <result column="level" jdbcType="VARCHAR" property="level" />
+    <result column="memo" jdbcType="VARCHAR" property="memo" />
+    <result column="projectid" jdbcType="BIGINT" property="projectid" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="lastmodify_time" jdbcType="TIMESTAMP" property="lastmodifyTime" />
+    <result column="creatorid" jdbcType="BIGINT" property="creatorid" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="modelid" jdbcType="BIGINT" property="modelid" />
+    <result column="modelname" jdbcType="VARCHAR" property="modelname" />
+    <result column="mid" jdbcType="BIGINT" property="mid" />
+    <result column="mnickname" jdbcType="VARCHAR" property="mnickname" />
+  </resultMap>
+
+  <select id="findApiCaseWithName" resultMap="BaseResultMap">
+    SELECT a.*
+    FROM apicases a
+--     SELECT b.deployunitname,b.protocal,c.apiname,a.*
+--     FROM apicases a inner join  deployunit b  inner join api c on a.deployunitid=b.id and a.apiid=c.id
+    <where>
+      <if test="apiid != null and apiid != ''">a.apiid = #{apiid}</if>
+      <if test="modelid != null and modelid != ''">and a.modelid = #{modelid}</if>
+      <if test="casetype != null and casetype != ''">and a.casetype = #{casetype}</if>
+      <if test="servicetype != null and servicetype != ''">and a.servicetype = #{servicetype}</if>
+      <if test="protocal != null and protocal != ''">and a.protocal = #{protocal}</if>
+      <if test="deployunitid != null  and deployunitid != ''">and a.deployunitid = #{deployunitid}</if>
+      <if test="casename != null and casename != ''">and a.casename like CONCAT('%',#{casename},'%')</if>
+      <if test="projectid != null  and projectid != ''">and a.projectid =#{projectid}</if>
+      <if test="mid != null and mid != ''">and a.mid =#{mid}</if>
+      <if test="path != null  and path != ''">and c.path like CONCAT('%',#{path},'%')</if>    </where>
+    order by lastmodify_time  DESC
+  </select>
+
+  <select id="findApiCasebynameandcasetype" resultMap="BaseResultMap">
+    SELECT a.*
+    FROM apicases a
+    <where>
+      <if test="apiname != null and apiname != ''">a.apiname = #{apiname}</if>
+      <if test="deployunitname != null  and deployunitname != ''">and a.deployunitname = #{deployunitname}</if>
+      <if test="casetype != null and casetype != ''">and a.casetype = #{casetype}</if>
+      <if test="projectid != null  and projectid != ''">and a.projectid =#{projectid}</if>
+    </where>
+  </select>
+
+  <select id="getapicasebyName" resultMap="BaseResultMap">
+    SELECT a.casename,a.id
+    FROM apicases a where a.apiid =#{apiid} and a.deployunitid = #{deployunitid}
+  </select>
+
+
+  <select id="forupdateifexist" resultMap="BaseResultMap">
+    SELECT id,apiname,deployunitname,casename,casejmxname,casecontent,casetype,expect,level,memo,create_time,lastmodify_time,creator FROM apicases
+    WHERE deployunitid = #{deployunitid} and apiid = #{apiid}
+    and id != #{id} and casename = #{casename}
+
+  </select>
+
+  <select id="getcasenum" resultType="java.lang.Integer">
+    SELECT count(*)
+    FROM apicases  where casetype=#{casetype} and projectid =#{projectid}
+  </select>
+
+  <update id="updateApicase" parameterType="com.zoctan.api.entity.Apicases">
+    update apicases set casename = #{casename},casejmxname = #{casejmxname},apiid=#{apiid}, apiname = #{apiname},deployunitid=#{deployunitid}, deployunitname = #{deployunitname}, casecontent = #{casecontent},expect = #{expect},
+                        modelid = #{modelid}, modelname = #{modelname}, creatorid = #{creatorid},
+                        memo = #{memo},casetype=#{casetype},threadnum=#{threadnum},loops=#{loops},middleparam=#{middleparam},level=#{level}, creator = #{creator},
+                        mid = #{mid},mnickname = #{mnickname}, lastmodify_time = DATE_FORMAT(NOW(),'%Y-%m-%d %H:%i:%s')
+    where id = #{id};
+  </update>
+
+  <select id="getstaticsdeployunitcases" resultMap="BaseResultMap">
+    SELECT deployunitname ,count(*) as apiid
+    FROM apicases where projectid =#{projectid} group by deployunitname order by apiid desc limit #{limit}
+  </select>
+
+  <select id="getcasebydeployunitid" resultMap="BaseResultMap">
+    SELECT *
+    FROM apicases WHERE deployunitid = #{deployunitid}
+  </select>
+
+  <select id="getcasebyapiid" resultMap="BaseResultMap">
+    SELECT *
+    FROM apicases WHERE apiid = #{apiid}
+  </select>
+
+  <update id="updateApibymodelid" >
+    update apicases set modelname = #{modelname}
+    where modelid = #{modelid};
+  </update>
+
+</mapper>

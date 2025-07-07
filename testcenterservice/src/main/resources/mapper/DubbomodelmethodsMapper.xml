@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zoctan.api.mapper.DubbomodelmethodsMapper">
+  <resultMap id="BaseResultMap" type="com.zoctan.api.entity.Dubbomodelmethods">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="modelid" jdbcType="BIGINT" property="modelid" />
+    <result column="methodname" jdbcType="VARCHAR" property="methodname" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="lastmodify_time" jdbcType="TIMESTAMP" property="lastmodifyTime" />
+  </resultMap>
+
+  <select id="findDicWithName" resultMap="BaseResultMap">
+    SELECT *
+    FROM dubbomodelmethods a
+    <where>
+      <if test="modelid != null and modelid != ''">a.modelid =#{modelid}</if>
+    </where>
+    order by lastmodify_time  DESC
+  </select>
+
+
+  <update id="deletemethods" >
+    delete from dubbomodelmethods
+    where modelid = #{modelid}
+  </update>
+</mapper>

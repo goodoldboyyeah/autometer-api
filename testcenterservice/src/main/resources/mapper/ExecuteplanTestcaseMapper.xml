@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zoctan.api.mapper.ExecuteplanTestcaseMapper">
+  <resultMap id="BaseResultMap" type="com.zoctan.api.entity.ExecuteplanTestcase">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="executeplanid" jdbcType="BIGINT" property="executeplanid" />
+    <result column="deployunitid" jdbcType="BIGINT" property="deployunitid" />
+    <result column="apiid" jdbcType="BIGINT" property="apiid" />
+    <result column="caseorder" jdbcType="BIGINT" property="caseorder" />
+    <result column="deployunitname" jdbcType="VARCHAR" property="deployunitname" />
+    <result column="apiname" jdbcType="VARCHAR" property="apiname" />
+    <result column="testcaseid" jdbcType="BIGINT" property="testcaseid" />
+    <result column="casename" jdbcType="VARCHAR" property="casename" />
+    <result column="projectid" jdbcType="BIGINT" property="projectid" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="lastmodify_time" jdbcType="TIMESTAMP" property="lastmodifyTime" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+  </resultMap>
+
+  <select id="findexplanWithName" resultMap="BaseResultMap">
+    SELECT b.executeplanname,c.deployunitname,d.apiname,e.casename,a.*
+    FROM executeplan_testcase a join executeplan b  inner join deployunit c inner join api d inner join apicases e
+    on a.executeplanid=b.id and a.deployunitid=c.id and a.apiid=d.id and a.testcaseid=e.id
+    <where>
+      <if test="deployunitid != null and deployunitid != ''">a.deployunitid = #{deployunitid} </if>
+      <if test="executeplanid != null and executeplanid != ''">and a.executeplanid = #{executeplanid}</if>
+      <if test="apiid != null and apiid != ''">and a.apiid = #{apiid}</if>
+      <if test="projectid != null  and projectid != ''">and a.projectid =#{projectid}</if>
+    </where>
+    order by lastmodify_time  DESC
+  </select>
+
+  <select id="findcasebydeployandapi" resultMap="BaseResultMap">
+    select testcaseid from executeplan_testcase c
+    <where>
+      <if test="deployunitname != null and deployunitname != ''">and c.deployunitname like CONCAT('%',#{deployunitname},'%')</if>
+      <if test="apiname != null  and apiname != ''">and c.apiname like CONCAT('%',#{apiname},'%')</if> and c.executeplanid = #{executeplanid}
+      <if test="projectid != null  and projectid != ''">and a.projectid =#{projectid}</if>
+    </where>
+  </select>
+
+  <select id="findcasebytestplanid" resultMap="BaseResultMap">
+    select a.testcaseid, c.deployunitname,b.casejmxname,b.casename,b.expect,b.threadnum,b.loops from executeplan_testcase a join apicases b join deployunit c on a.testcaseid = b.id and c.id = a.deployunitid  where a.executeplanid = #{executeplanid}
+  </select>
+
+  <select id="findcasebyplanidandcaseid" resultType="java.lang.Integer">
+    select COUNT(*) from executeplan_testcase a where a.executeplanid = #{executeplanid} and a.testcaseid = #{testcaseid}
+  </select>
+
+  <select id="findcasenumbyplanid" resultType="java.lang.Integer">
+    select COUNT(*) from executeplan_testcase a where a.executeplanid = #{executeplanid}
+  </select>
+
+  <select id="findexecplancasebyid" resultMap="BaseResultMap">
+    select a.*,b.executeplanname from executeplan_testcase a inner join executeplan b on a.executeplanid =b.id where a.id = #{id}
+  </select>
+
+  <select id="finddeployunitbyplanid" resultMap="BaseResultMap">
+    select a.deployunitid,b.deployunitname from executeplan_testcase a join deployunit b on a.deployunitid=b.id where a.executeplanid = #{executeplanid} group by a.deployunitid
+  </select>
+
+  <select id="findcasebyplanid" resultMap="BaseResultMap">
+    select a.* from apicases a
+    <where>
+      <if test="deployunitid != null and deployunitid != ''"> a.deployunitid  =#{deployunitid}</if>
+      <if test="casetype != null  and casetype != ''">and a.casetype=#{casetype}</if>
+      <if test="apiid != null  and apiid != 0">and a.apiid=#{apiid}</if>
+    </where>
+    and a.id
+      not in(select testcaseid from executeplan_testcase   WHERE executeplanid=#{executeplanid})
+  </select>
+
+  <insert id="savetestplancase">
+    INSERT INTO executeplan_testcase (executeplanid,apiid,deployunitid,deployunitname,apiname,
+                                      testcaseid,casename,create_time,lastmodify_time,
+                                      creator,caseorder,projectid)
+    VALUES
+    <foreach collection="casedataList" item="item" index="index" separator=",">
+    (#{item.executeplanid}, #{item.apiid}, #{item.deployunitid},#{item.deployunitname}, #{item.apiname},
+     #{item.testcaseid}, #{item.casename},DATE_FORMAT(NOW(),'%Y-%m-%d %H:%i:%s'),
+     DATE_FORMAT(NOW(),'%Y-%m-%d %H:%i:%s'), #{item.creator},#{item.caseorder},#{item.projectid})
+    </foreach>
+  </insert>
+
+  <delete id="removeexecuteplantestcase">
+    DELETE from executeplan_testcase where executeplanid = #{executeplanid} and testcaseid=#{testcaseid}
+  </delete>
+
+  <delete id="removetestcase">
+    DELETE from executeplan_testcase where  testcaseid=#{testcaseid}
+  </delete>
+
+  <delete id="removeplancase">
+    DELETE from executeplan_testcase where  executeplanid = #{executeplanid}
+  </delete>
+
+  <delete id="removebatchexecuteplantestcase">
+    DELETE from executeplan_testcase
+    <foreach collection="casedataList" item="item" index="index" separator=",">
+      (where executeplanid = #{executeplanid} and testcaseid=#{testcaseid})
+    </foreach>
+  </delete>
+
+  <select id="getstaticsplancases" resultMap="BaseResultMap">
+  SELECT b.executeplanname as deployunitname ,count(*) as id
+  FROM executeplan_testcase a
+  inner JOIN executeplan b on a.executeplanid=b.id where a.projectid=#{projectid}  group by a.executeplanid
+</select>
+
+  <select id="getplancasesbyplanid" resultMap="BaseResultMap">
+    SELECT *
+    FROM executeplan_testcase a
+    where executeplanid = #{executeplanid}
+</select>
+
+  <select id="getplancasesbyplanidandorder" resultMap="BaseResultMap">
+    SELECT *
+    FROM executeplan_testcase a
+    where executeplanid = #{executeplanid}
+    order by caseorder asc
+  </select>
+
+  <select id="findcaseorderexist" resultMap="BaseResultMap">
+    SELECT *
+    FROM executeplan_testcase a
+    where executeplanid = #{executeplanid} and caseorder = #{caseorder}
+  </select>
+
+  <update id="updatePlanCaseorder" >
+    update executeplan_testcase set caseorder = #{caseorder},lastmodify_time = DATE_FORMAT(NOW(),'%Y-%m-%d %H:%i:%s')
+    where id = #{id};
+  </update>
+</mapper>

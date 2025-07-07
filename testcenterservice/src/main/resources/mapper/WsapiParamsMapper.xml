@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zoctan.api.mapper.WsapiParamsMapper">
+  <resultMap id="BaseResultMap" type="com.zoctan.api.entity.WsapiParams">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="apiid" jdbcType="BIGINT" property="apiid" />
+    <result column="apiname" jdbcType="VARCHAR" property="apiname" />
+    <result column="deployunitid" jdbcType="BIGINT" property="deployunitid" />
+    <result column="deployunitname" jdbcType="VARCHAR" property="deployunitname" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="lastmodify_time" jdbcType="TIMESTAMP" property="lastmodifyTime" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="creatorid" jdbcType="BIGINT" property="creatorid" />
+    <result column="keydefaultvalue" jdbcType="LONGVARCHAR" property="keydefaultvalue" />
+  </resultMap>
+
+  <select id="getApiParamsbyapiid" resultMap="BaseResultMap">
+    SELECT *
+    FROM wsapi_params a where a.apiid=#{apiid}
+  </select>
+
+  <delete id="deletebyApiid" >
+    delete
+    FROM wsapi_params  where apiid=#{apiid}
+  </delete>
+</mapper>

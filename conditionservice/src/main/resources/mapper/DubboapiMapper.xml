@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zoctan.api.mapper.DubboapiMapper">
+  <resultMap id="BaseResultMap" type="com.zoctan.api.entity.Dubboapi">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="deployunitid" jdbcType="BIGINT" property="deployunitid" />
+    <result column="deployunitname" jdbcType="VARCHAR" property="deployunitname" />
+    <result column="apiname" jdbcType="VARCHAR" property="apiname" />
+    <result column="version" jdbcType="VARCHAR" property="version" />
+    <result column="dgroup" jdbcType="VARCHAR" property="dgroup" />
+    <result column="responecontenttype" jdbcType="VARCHAR" property="responecontenttype" />
+    <result column="memo" jdbcType="VARCHAR" property="memo" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="lastmodify_time" jdbcType="TIMESTAMP" property="lastmodifyTime" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="projectid" jdbcType="BIGINT" property="projectid" />
+    <result column="casecounts" jdbcType="BIGINT" property="casecounts" />
+    <result column="modelname" jdbcType="VARCHAR" property="modelname" />
+    <result column="modelid" jdbcType="BIGINT" property="modelid" />
+    <result column="mnickname" jdbcType="VARCHAR" property="mnickname" />
+    <result column="mid" jdbcType="BIGINT" property="mid" />
+    <result column="creatorid" jdbcType="BIGINT" property="creatorid" />
+  </resultMap>
+
+
+  <select id="findDicWithName" resultMap="BaseResultMap">
+    SELECT *
+    FROM dubboapi a
+    <where>
+      <if test="deployunitname != null and deployunitname != ''">a.deployunitname =#{deployunitname}</if>
+      <if test="modelname != null  and modelname != ''">and a.modelname =#{modelname}</if>
+      <if test="apiname != null  and apiname != ''">and a.apiname =#{apiname}</if>
+      <if test="projectid != null  and projectid != ''">and a.projectid =#{projectid}</if>
+    </where>
+  </select>
+
+
+  <update id="updateDic" parameterType="com.zoctan.api.entity.Dubboapi">
+    update dubboapi set apiname = #{apiname}, deployunitid = #{deployunitid}, deployunitname = #{deployunitname},
+                   modelid = #{modelid}, modelname = #{modelname},
+                        version = #{version}, responecontenttype =#{responecontenttype},creator = #{creator}, creatorid = #{creatorid},
+                   mid = #{mid},mnickname = #{mnickname},   casecounts = #{casecounts},  lastmodify_time = DATE_FORMAT(NOW(),'%Y-%m-%d %H:%i:%s')
+    where id = #{id};
+  </update>
+
+  <select id="listAllbydeploy" resultMap="BaseResultMap">
+    SELECT a.*
+    FROM dubboapi a
+    <where>
+      <if test="deployunitid != null and deployunitid != ''">a.deployunitid =#{deployunitid}</if>
+      <if test="modelid != 0  and modelid != ''">and a.modelid =#{modelid}</if>
+    </where>
+  </select>
+</mapper>

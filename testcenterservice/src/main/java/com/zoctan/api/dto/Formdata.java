@@ -1,0 +1,22 @@
+package com.zoctan.api.dto;
+
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.List;
+
+/**
+ * @author hacker li
+ * @since 08/02/2022 11:16
+ */
+@Setter
+@Getter
+public class Formdata {
+    private String key;
+    private String value;
+    private String type;
+    private String description;
+    private List<String> src;
+
+
+}

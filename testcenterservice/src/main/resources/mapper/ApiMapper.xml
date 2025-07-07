@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zoctan.api.mapper.ApiMapper">
+  <resultMap id="BaseResultMap" type="com.zoctan.api.entity.Api">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="deployunitid" jdbcType="BIGINT" property="deployunitid" />
+    <result column="deployunitname" jdbcType="VARCHAR" property="deployunitname" />
+    <result column="apiname" jdbcType="VARCHAR" property="apiname" />
+    <result column="visittype" jdbcType="VARCHAR" property="visittype" />
+    <result column="requesttype" jdbcType="VARCHAR" property="requesttype" />
+    <result column="apistyle" jdbcType="VARCHAR" property="apistyle" />
+    <result column="path" jdbcType="VARCHAR" property="path" />
+    <result column="requestcontenttype" jdbcType="VARCHAR" property="requestcontenttype" />
+    <result column="responecontenttype" jdbcType="VARCHAR" property="responecontenttype" />
+    <result column="memo" jdbcType="VARCHAR" property="memo" />
+    <result column="projectid" jdbcType="BIGINT" property="projectid" />
+    <result column="creatorid" jdbcType="BIGINT" property="creatorid" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="lastmodify_time" jdbcType="TIMESTAMP" property="lastmodifyTime" />
+    <result column="casecounts" jdbcType="BIGINT" property="casecounts" />
+    <result column="modelid" jdbcType="BIGINT" property="modelid" />
+    <result column="modelname" jdbcType="VARCHAR" property="modelname" />
+    <result column="mid" jdbcType="BIGINT" property="mid" />
+    <result column="mnickname" jdbcType="VARCHAR" property="mnickname" />
+
+  </resultMap>
+
+
+  <select id="findApiWithName" resultMap="BaseResultMap">
+    SELECT b.deployunitname,a.*
+    FROM api a inner join deployunit b on a.deployunitid=b.id
+    <where>
+      <if test="apiname != null and apiname != ''">a.apiname like CONCAT('%',#{apiname},'%')</if>
+      <if test="modelname != null and modelname != ''">and a.modelname like CONCAT('%',#{modelname},'%')</if>
+      <if test="deployunitname != null  and deployunitname != ''">and a.deployunitname like CONCAT('%',#{deployunitname},'%')</if>
+      <if test="projectid != null  and projectid != ''">and a.projectid =#{projectid}</if>
+      <if test="mid != null and mid != ''">and a.mid =#{mid}</if>
+      <if test="path != null  and path != ''">and a.path like CONCAT('%',#{path},'%')</if>
+    </where>
+    order by lastmodify_time  DESC
+  </select>
+
+  <select id="listAllbydeploy" resultMap="BaseResultMap">
+    SELECT a.*
+    FROM api a
+    <where>
+      <if test="deployunitid != null and deployunitid != ''">a.deployunitid =#{deployunitid}</if>
+      <if test="modelid != 0  and modelid != ''">and a.modelid =#{modelid}</if>
+    </where>
+  </select>
+
+  <select id="getresponetypebydeployandapiname" resultMap="BaseResultMap">
+    SELECT a.*
+    FROM api a
+    where a.deployunitname=#{deployunitname} and a.apiname=#{apiname}
+  </select>
+
+  <select id="getapinum" resultType="java.lang.Integer">
+    SELECT count(*)
+    FROM api a where projectid=#{projectid}
+  </select>
+
+  <select id="getapibydvap" resultMap="BaseResultMap">
+    SELECT a.*
+    FROM api a
+    where a.deployunitid=#{deployunitid} and a.visittype=#{visittype} and a.path=#{path}
+  </select>
+
+  <update id="updateApibymodelid" >
+    update api set modelname = #{modelname}
+    where modelid = #{modelid};
+  </update>
+
+  <update id="updateApi" parameterType="com.zoctan.api.entity.Api">
+    update api set apiname = #{apiname}, deployunitid = #{deployunitid}, deployunitname = #{deployunitname},
+                   modelid = #{modelid}, modelname = #{modelname},
+                   visittype = #{visittype},requesttype = #{requesttype},apistyle=#{apistyle}, path = #{path},
+    memo = #{memo}, requestcontenttype = #{requestcontenttype}, responecontenttype =#{responecontenttype},creator = #{creator}, creatorid = #{creatorid},
+                   mid = #{mid},mnickname = #{mnickname},   casecounts = #{casecounts},  lastmodify_time = DATE_FORMAT(NOW(),'%Y-%m-%d %H:%i:%s')
+    where id = #{id};
+  </update>
+
+  <select id="getstaticsdeployapi" resultMap="BaseResultMap">
+    SELECT deployunitname ,count(*) as id
+    FROM api where projectid=#{projectid} group by deployunitname order by id desc limit #{apilimit}
+  </select>
+
+  <select id="getapibydeployunitid" resultMap="BaseResultMap">
+    SELECT *
+    FROM api WHERE deployunitid = #{deployunitid}
+  </select>
+</mapper>

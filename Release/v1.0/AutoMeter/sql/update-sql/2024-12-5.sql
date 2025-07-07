@@ -1,0 +1,2 @@
+ ALTER TABLE deployunit_model add COLUMN `version` varchar(64) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '版本';
+ ALTER TABLE deployunit_model add COLUMN `dgroup` varchar(64) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '分组';
