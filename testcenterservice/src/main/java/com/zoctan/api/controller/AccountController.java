@@ -37,6 +37,23 @@ public class AccountController {
   @Resource private AccountDetailsServiceImpl userDetailsService;
   @Resource private JwtUtil jwtUtil;
 
+  public static void main(String[] args) {
+    Scanner sc=new Scanner(System.in);
+    System.out.println("请输入一个数：");
+    int a=sc.nextInt();
+    System.out.println("请输入一个数：");
+    int b=sc.nextInt();
+    if(a>b){
+      System.out.println("最大的数是："+a);
+    }
+    else if(a<b){
+      System.out.println("最大的数是："+b);
+    }
+    else{
+      System.out.println("两数相等！");
+    }
+  }
+
   @PostMapping
   public Result register(
       @RequestBody @Valid final AccountDto account, final BindingResult bindingResult) {
